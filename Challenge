@@ -1,0 +1,175 @@
+Challenge 1
+Migrate data existing and on-going data (FULL LOAD + CDC) from Ec2 MySQL 5.7 to Aurora MySQL 2.07.2 (5.7) using DMS. 
+•	https://aws.amazon.com/premiumsupport/knowledge-center/migrate-mysql-rds-dms/
+ 
+Part 1: Creating source Ec2 MySQL server with sample data
+
+1.	Launch an Ec2 instance (Amazon Linux 2 AMI (HVM), SSD Volume Type). 
+1.	T3.medium is the recommended Instance Type
+2.	“Configure Instance Details” may be kept as default
+3.	“Add Storage” can be altered to 20 GiB
+4.	“Add Tags” may be skipped
+5.	“Configure Security Group” – “Select an existing security group” and select the default security group.
+6.	When launching the instance, you will need to create a new key pair. It is critical that once you have given your Key Pair a name, you download the Key Pair with the “Download Key Pair” button. Keep this key pair in a safe place, as it will be needed later.
+
+2.	Add your computers IP address to the Inbound rules of the default security group.
+
+3.	SSH to your EC2 instance using PuTTY (or another SSH client)
+1.	Download and install PuTTY
+•	https://www.putty.org/ 
+2.	Connect to your instance
+•	https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
+•	The default user for the instance is “ec2-user”
+ 
+4.	Change session to root, then install and configure MySQL 5.7 on the EC2 instance https://stackoverflow.com/questions/39025524/how-to-install-mysql-5-7-on-amazon-ec2
+
+----------------------------------------
+1.	sudo –i
+2.	yum update -y
+3.	wget https://dev.mysql.com/get/mysql57-community-release-el7-8.noarch.rpm
+4.	yum localinstall mysql57-community-release-el7-8.noarch.rpm
+5.	yum install mysql-community-server
+6.	service mysqld start
+7.	service mysqld status
+----------------------------------------
+  
+5.	Get MySQL root password and change it to your desired password.
+----------------------------------------
+sudo grep 'temporary password' /var/log/mysqld.log
+
+Open mysql using:
+“mysql -u root -p” 
+You will then be asked for the password shown by the grep performed above
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY '<yourpasswordhere>';
+
+exit
+----------------------------------------
+ 
+6.	Configure binary logging in the server for CDC by modifying the my.cnf file as root. You will use your preferred text editor for this step. For user unfamiliar with text editors, nano is recommended.
+
+----------------------------------------
+nano /etc/my.cnf
+----------------------------------------
+
+Add the below lines to the my.cnf file and then exit.
+
+----------------------------------------
+# DMS CDC configuration
+server_id=1
+log-bin=mysql-bin
+binlog_format=ROW
+expire_logs_days=1
+binlog_checksum=NONE
+binlog_row_image=FULL
+log_slave_updates=TRUE
+----------------------------------------
+ 
+7.	Create the BinLog directory then restart the service.
+----------------------------------------
+mkdir -p /etc/mysql/binlog
+chmod -R 755 /etc/mysql
+service mysqld restart
+----------------------------------------
+ 
+8.	In MySQL check that Binary logging is enabled. 
+----------------------------------------
+SHOW BINARY LOGS;
+----------------------------------------
+ 
+9.	In MySQL create DMS Replication user with correct privileges.
+----------------------------------------
+CREATE USER 'dmstest'@'%' IDENTIFIED WITH mysql_native_password BY '<yourpasswordhere>';
+GRANT ALL PRIVILEGES ON *.* TO 'dmstest'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+----------------------------------------
+10.	Create database and create sample data
+----------------------------------------
+create database dmstest;
+ 
+mysql> create table dmstest.company (id int, name varchar(15));
+Query OK, 0 rows affected (0.01 sec)
+ 
+mysql> alter table dmstest.company add primary key (id);
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+ 
+mysql> insert into dmstest.company values (0,'AMZN - Jeff');
+Query OK, 1 row affected (0.00 sec)
+ 
+mysql> insert into dmstest.company values (1,'ORCL - Larry');
+Query OK, 1 row affected (0.02 sec)
+ 
+mysql> insert into dmstest.company values (2,'MSFT - Bill');
+Query OK, 1 row affected (0.01 sec)
+ 
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+ 
+mysql> select * from dmstest.company;
++----+--------------+
+| id | name         |
++----+--------------+
+|  0 | AMZN - Jeff  |
+|  1 | ORCL - Larry |
+|  2 | MSFT - Bill  |
++----+--------------+
+3 rows in set (0.00 sec)
+----------------------------------------
+ 
+PLEASE SCREENSHOT THIS PART WHERE YOU HAVE SAMPLE DATA IN EC2 MYSQL. 
+Name it: ec2mysqldata_<yourname>
+Eg. ec2mysqldata_varsha
+ 
+ 
+Part 2: Creating Aurora MySQL instance
+1.	Launch an Aurora MySQL 2.07.2 instance
+2.	db.t3.medium is the recommended DB instance class
+3.	Don't create an Aurora Replica
+ 
+Part 3: Setting up DMS for migration
+1.	Create DMS replication instance.
+https://aws.amazon.com/premiumsupport/knowledge-center/create-aws-dms-replication-instance/
+ 
+2.	Create DMS endpoint with Ec2 MySQL as source.
+Note: In Server name you must put your EC2 instance private IP
+https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MySQL.html
+ 
+3.	Create DMS endpoint with Aurora MySQL as target.
+https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.MySQL.html
+ 
+4.	Create DMS task with Migrating existing data and replicate ongoing changes.
+Note: For schema under table mappings, use the schema from the sample data you created and avoid using the wildcard (%). 
+WAIT A WHILE THEN PLEASE SCREENSHOT THIS PART OF THE DMS TASK CONSOLE WHERE YOU CAN SEE THE STATUS AND PROGRESS TAB. Hopefully it should be all successful. 
+Name it: dms_<yourname>
+Eg. dms_varsha
+ 
+ 
+Part 4: Check that the data is present on the target Aurora MySQL database. 
+PLEASE SCREENSHOT THIS PART WHERE YOU HAVE SAMPLE DATA IN EC2 MYSQL. 
+Name it: auroramysqldata_<yourname>
+Eg. auroramysqldata_varsha
+ 
+----------------------------------------
+mysql> insert into dmstest.company values (3,'TSLA - Elon');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+----------------------------------------
+ 
+Part 5: Check CDC is working by adding new sample data in the source which should replicate to the target. 
+
+
+PLEASE TAKE 2 SCREENSHOTS HERE. ONE OF THE SOURCE EC2 MYSQL AND THE SECOND OF AURORA MYSQL WITH THE NEWLY INSTERTED DATA SHOWING. 
+Name the source screenshot: ec2final_<yourname>
+Eg. ec2final_varsha
+Name the target screenshot: aurorafinal_<yourname>
+Eg. aurorafinal_varsha
+ 
+In total, there should be 5 screenshots provided: 
+•	ec2mysqldata_<yourname>
+•	dms_<yourname>
+•	auroramysqldata_<yourname>
+•	ec2final_<yourname>
+•	aurorafinal_<yourname>
