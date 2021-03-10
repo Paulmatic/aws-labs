@@ -4,7 +4,7 @@ Migrate data existing and on-going data (FULL LOAD + CDC) from Ec2 MySQL 5.7 to 
  
 Part 1: Creating source Ec2 MySQL server with sample data
 
-  1.	Launch an Ec2 instance (Amazon Linux 2 AMI (HVM), SSD Volume Type). 
+1.Launch an Ec2 instance (Amazon Linux 2 AMI (HVM), SSD Volume Type). 
   
      1.	T3.medium is the recommended Instance Type
      2.	“Configure Instance Details” may be kept as default
@@ -13,9 +13,9 @@ Part 1: Creating source Ec2 MySQL server with sample data
      5.	“Configure Security Group” – “Select an existing security group” and select the default security group.
      6.	When launching the instance, you will need to create a new key pair. It is critical that once you have given your Key Pair a name, you download the Key Pair with the “Download Key Pair” button. Keep this key pair in a safe place, as it will be needed later.
 
-  2.	Add your computers IP address to the Inbound rules of the default security group.
+2.Add your computers IP address to the Inbound rules of the default security group.
 
-  3.	SSH to your EC2 instance using PuTTY (or another SSH client)
+3.SSH to your EC2 instance using PuTTY (or another SSH client)
 
      1.	Download and install PuTTY
        •	https://www.putty.org/ 
@@ -23,7 +23,7 @@ Part 1: Creating source Ec2 MySQL server with sample data
        •	https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
        •	The default user for the instance is “ec2-user”
  
-4.	Change session to root, then install and configure MySQL 5.7 on the EC2 instance https://stackoverflow.com/questions/39025524/how-to-install-mysql-5-7-on-amazon-ec2
+4.Change session to root, then install and configure MySQL 5.7 on the EC2 instance https://stackoverflow.com/questions/39025524/how-to-install-mysql-5-7-on-amazon-ec2
 
    ----------------------------------------
    1.	sudo –i
@@ -35,7 +35,7 @@ Part 1: Creating source Ec2 MySQL server with sample data
    7.	service mysqld status
    ----------------------------------------
   
-5.	Get MySQL root password and change it to your desired password.
+5.Get MySQL root password and change it to your desired password.
 
    ----------------------------------------
    sudo grep 'temporary password' /var/log/mysqld.log
@@ -49,7 +49,7 @@ Part 1: Creating source Ec2 MySQL server with sample data
    exit
    ----------------------------------------
  
-6.	Configure binary logging in the server for CDC by modifying the my.cnf file as root. You will use your preferred text editor for this step. For user unfamiliar with text editors, nano is recommended.
+6.Configure binary logging in the server for CDC by modifying the my.cnf file as root. You will use your preferred text editor for this step. For user unfamiliar with text editors, nano is recommended.
 
    ----------------------------------------
    nano /etc/my.cnf
@@ -68,7 +68,7 @@ Add the below lines to the my.cnf file and then exit.
    log_slave_updates=TRUE
    ----------------------------------------
  
-7.	Create the BinLog directory then restart the service.
+7.Create the BinLog directory then restart the service.
 
    ----------------------------------------
    mkdir -p /etc/mysql/binlog
