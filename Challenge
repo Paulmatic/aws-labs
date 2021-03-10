@@ -35,7 +35,7 @@ Part 1: Creating source Ec2 MySQL server with sample data
    7.	service mysqld status
    ----------------------------------------
   
-5.Get MySQL root password and change it to your desired password.
+5. Get MySQL root password and change it to your desired password.
 
    ----------------------------------------
    sudo grep 'temporary password' /var/log/mysqld.log
@@ -49,7 +49,7 @@ Part 1: Creating source Ec2 MySQL server with sample data
    exit
    ----------------------------------------
  
-6.Configure binary logging in the server for CDC by modifying the my.cnf file as root. You will use your preferred text editor for this step. For user unfamiliar with text editors, nano is recommended.
+6. Configure binary logging in the server for CDC by modifying the my.cnf file as root. You will use your preferred text editor for this step. For user unfamiliar with text editors, nano is recommended.
 
    ----------------------------------------
    nano /etc/my.cnf
@@ -68,7 +68,7 @@ Add the below lines to the my.cnf file and then exit.
    log_slave_updates=TRUE
    ----------------------------------------
  
-7.Create the BinLog directory then restart the service.
+7. Create the BinLog directory then restart the service.
 
    ----------------------------------------
    mkdir -p /etc/mysql/binlog
@@ -76,13 +76,13 @@ Add the below lines to the my.cnf file and then exit.
    service mysqld restart
    ----------------------------------------
  
-8.	In MySQL check that Binary logging is enabled. 
+8. In MySQL check that Binary logging is enabled. 
 
    ----------------------------------------
    SHOW BINARY LOGS;
    ----------------------------------------
  
-9.	In MySQL create DMS Replication user with correct privileges.
+9. In MySQL create DMS Replication user with correct privileges.
 
    ----------------------------------------
    CREATE USER 'dmstest'@'%' IDENTIFIED WITH mysql_native_password BY '<yourpasswordhere>';
@@ -90,7 +90,7 @@ Add the below lines to the my.cnf file and then exit.
    FLUSH PRIVILEGES;
    ----------------------------------------
 
-10.	Create database and create sample data
+10. Create database and create sample data
 
    ----------------------------------------
    create database dmstest;
@@ -137,17 +137,17 @@ Part 2: Creating Aurora MySQL instance
  
 Part 3: Setting up DMS for migration
 
-  1.	Create DMS replication instance.
+  1. Create DMS replication instance.
   https://aws.amazon.com/premiumsupport/knowledge-center/create-aws-dms-replication-instance/
 
-  2.	Create DMS endpoint with Ec2 MySQL as source.
+  2. Create DMS endpoint with Ec2 MySQL as source.
   Note: In Server name you must put your EC2 instance private IP
   https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Source.MySQL.html
 
-  3.	Create DMS endpoint with Aurora MySQL as target.
+  3. Create DMS endpoint with Aurora MySQL as target.
   https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.MySQL.html
 
-  4.	Create DMS task with Migrating existing data and replicate ongoing changes.
+  4. Create DMS task with Migrating existing data and replicate ongoing changes.
   Note: For schema under table mappings, use the schema from the sample data you created and avoid using the wildcard (%). 
   WAIT A WHILE THEN PLEASE SCREENSHOT THIS PART OF THE DMS TASK CONSOLE WHERE YOU CAN SEE THE STATUS AND PROGRESS TAB. Hopefully it should be all successful. 
   Name it: dms_<yourname>
