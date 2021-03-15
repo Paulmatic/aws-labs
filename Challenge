@@ -168,7 +168,7 @@ Part 3: Setting up DMS for migration
   Query OK, 0 rows affected (0.00 sec)
   ----------------------------------------
  
-Part 4: Check CDC is working by adding new sample data in the source which should replicate to the target. 
+  6. Check CDC is working by adding new sample data in the source which should replicate to the target. 
 
   PLEASE TAKE 2 SCREENSHOTS HERE. ONE OF THE SOURCE EC2 MYSQL AND THE SECOND OF AURORA MYSQL WITH THE NEWLY INSTERTED DATA SHOWING. 
   Name the source screenshot: ec2final_<yourname>
