@@ -154,7 +154,7 @@ Part 3: Setting up DMS for migration
   Eg. dms_varsha
  
  
-Part 4: Check that the data is present on the target Aurora MySQL database.
+  5. Check that the data is present on the target Aurora MySQL database.
 
   PLEASE SCREENSHOT THIS PART WHERE YOU HAVE SAMPLE DATA IN EC2 MYSQL. 
   Name it: auroramysqldata_<yourname>
@@ -168,7 +168,7 @@ Part 4: Check that the data is present on the target Aurora MySQL database.
   Query OK, 0 rows affected (0.00 sec)
   ----------------------------------------
  
-Part 5: Check CDC is working by adding new sample data in the source which should replicate to the target. 
+Part 4: Check CDC is working by adding new sample data in the source which should replicate to the target. 
 
   PLEASE TAKE 2 SCREENSHOTS HERE. ONE OF THE SOURCE EC2 MYSQL AND THE SECOND OF AURORA MYSQL WITH THE NEWLY INSTERTED DATA SHOWING. 
   Name the source screenshot: ec2final_<yourname>
